@@ -1,38 +1,41 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"time"
 
-	"github.com/go-fsnotify/fsnotify"
+	"github.com/radovskyb/watcher"
 )
 
-var watcher *fsnotify.Watcher
-
 func main() {
-
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer watcher.Close()
-
-	done := make(chan bool)
+	w := watcher.New()
+	w.IgnoreHiddenFiles(true)
 
 	go func() {
 		for {
 			select {
-			case event := <-watcher.Events:
-				log.Println("Change detected! %#v\n", event)
-
-			case err := <-watcher.Errors:
-				log.Fatal(err)
+			case event := <-w.Event:
+				fmt.Println(event) // Print the event's info.
+			case err := <-w.Error:
+				log.Fatalln(err)
+			case <-w.Closed:
+				return
 			}
 		}
 	}()
 
-	if err := watcher.Add("test/file.txt"); err != nil {
-		log.Fatal(err)
+	if err := w.AddRecursive("."); err != nil {
+		log.Fatalln(err)
 	}
 
-	<-done
+	for path, f := range w.WatchedFiles() {
+		fmt.Printf("%s: %s\n", path, f.Name())
+	}
+
+	fmt.Println()
+
+	if err := w.Start(time.Millisecond * 100); err != nil {
+		log.Fatalln(err)
+	}
 }
