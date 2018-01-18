@@ -6,41 +6,55 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"strings"
+	"syscall"
 	"time"
 
-	"github.com/radovskyb/watcher"
+	"github.com/KaiserGald/filewatcher/filewatcher"
 )
 
+var (
+	watch string
+)
+
+func processFlags() (string, string) {
+	flag.StringVar(&watch, "w", "", "watches the specified files and copies them to the specified location. Example: fw -w SOURCE:DESTINATION")
+	flag.StringVar(&watch, "watch", "", "watches the specified files and copies them to the specified location. Example: fw -w SOURCE:DESTINATION")
+
+	flag.Parse()
+
+	src, des := handleFlags()
+	return src, des
+}
+
+func handleFlags() (string, string) {
+	fps := strings.Split(watch, ":")
+	src := fps[0]
+	des := fps[1]
+	return src, des
+}
+
 func main() {
-	w := watcher.New()
-	w.IgnoreHiddenFiles(true)
-
-	go func() {
-		for {
-			select {
-			case event := <-w.Event:
-				fmt.Println(event) // Print the event's info.
-			case err := <-w.Error:
-				log.Fatalln(err)
-			case <-w.Closed:
-				return
-			}
-		}
-	}()
-
-	if err := w.AddRecursive("."); err != nil {
-		log.Fatalln(err)
+	srcfp, desfp := processFlags()
+	fmt.Println(srcfp, desfp)
+	err := filewatcher.WatchFiles(srcfp, desfp)
+	if err != nil {
+		log.Fatalln("Error starting filewatcher: %v\n", err)
 	}
 
-	for path, f := range w.WatchedFiles() {
-		fmt.Printf("%s: %s\n", path, f.Name())
-	}
+	waitForSignal()
+}
 
-	fmt.Println()
+func waitForSignal() {
+	ch := make(chan os.Signal)
+	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
+	s := <-ch
 
-	if err := w.Start(time.Millisecond * 100); err != nil {
-		log.Fatalln(err)
-	}
+	log.Printf("Got signal: %v, exiting.\n", s)
+	time.Sleep(2 * time.Second)
 }
