@@ -34,6 +34,7 @@ func processFlags() (string, string) {
 
 func handleFlags() (string, string) {
 	fps := strings.Split(watch, ":")
+	fmt.Println(watch)
 	src := fps[0]
 	des := fps[1]
 	return src, des
@@ -41,7 +42,6 @@ func handleFlags() (string, string) {
 
 func main() {
 	srcfp, desfp := processFlags()
-	fmt.Println(srcfp, desfp)
 	err := filewatcher.WatchFiles(srcfp, desfp)
 	if err != nil {
 		log.Fatalln("Error starting filewatcher: %v\n", err)
