@@ -20,22 +20,37 @@ func CopyFile(srcfp, desfp string) error {
 		return err
 	}
 
+	info, err := os.Stat(srcfp)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Src file perms: %s.\n", info.Mode())
+
 	from, err := os.Open(srcfp)
 	if err != nil {
 		return err
 	}
 	defer from.Close()
 
-	to, err := os.OpenFile(desfp, os.O_RDWR|os.O_CREATE, 0666)
-	if err != nil {
-		return err
+	to := &os.File{}
+	if ok := pathExists(desfp); !ok {
+		fmt.Printf("File '%s' doesn't exist, creating it now...\n", desfp)
+		to, err = os.Create(desfp)
+		if err != nil {
+			return err
+		}
+	} else {
+		to, err = os.OpenFile(desfp, os.O_RDWR|os.O_CREATE, info.Mode())
+		if err != nil {
+			return err
+		}
+		_, err = io.Copy(to, from)
+		if err != nil {
+			return err
+		}
+		defer to.Close()
 	}
-	defer to.Close()
 
-	_, err = io.Copy(to, from)
-	if err != nil {
-		return err
-	}
 	fmt.Println(from.Name(), "has been copied to", to.Name())
 
 	return nil
@@ -44,37 +59,50 @@ func CopyFile(srcfp, desfp string) error {
 // CopyDir copies the source directory to the destination directory
 func CopyDir(srcdir string, desdir string) error {
 	if ok := pathExists(desdir); ok {
-		fmt.Println("exists")
+		fmt.Println("Path already exists, so no need to create directories.")
 		return nil
 	}
+	fmt.Println("Path doesn't exist, so creating path now...")
 
 	info, err := os.Stat(srcdir)
 	if err != nil {
 		return err
 	}
 
-	var dirs []string
+	var desdirs []string
 	if info.IsDir() {
-		dirs = splitPath(desdir, false)
+		desdirs = splitPath(desdir, false)
 	} else {
-		dirs = splitPath(desdir, true)
+		desdirs = splitPath(desdir, true)
 	}
+	srcdirs := splitPath(srcdir, true)
 
-	var path string
-	for i, dir := range dirs {
+	var srcpath, despath string
+	for i, desdir := range desdirs {
 		if i == 0 {
-			path = strings.Join([]string{path, dir}, "")
+			despath = strings.Join([]string{despath, desdir}, "")
+			srcpath = strings.Join([]string{srcpath, srcdirs[i]}, "")
 		} else {
-			path = strings.Join([]string{path, dir}, "/")
+			despath = strings.Join([]string{despath, desdir}, "/")
+			if i < len(srcdirs) {
+				fmt.Println("Length is good.")
+				srcpath = strings.Join([]string{srcpath, srcdirs[i]}, "/")
+				info, err = os.Stat(srcpath)
+				if err != nil {
+					return err
+				}
+			} else {
+				fmt.Println("Length isn't good.")
+			}
 		}
-		if ok := pathExists(path); !ok {
-			fmt.Println(ok)
-			if err := os.Mkdir(path, info.Mode()); err != nil {
+		if ok := pathExists(despath); !ok {
+			fmt.Println("Creating Path:", despath)
+			fmt.Println("Path mode:", info.Mode())
+			if err := os.Mkdir(despath, info.Mode()); err != nil {
 				return err
 			}
 		}
 	}
-	fmt.Println(path)
 
 	return nil
 }

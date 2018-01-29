@@ -12,7 +12,19 @@ import (
 	"testing"
 )
 
+func TestMain(m *testing.M) {
+	os.MkdirAll("testdir/testsrc", 0777)
+	os.Mkdir("testdir/testdes", 0777)
+
+	test := m.Run()
+
+	os.RemoveAll("testdir")
+
+	os.Exit(test)
+}
+
 func TestCopyFile(t *testing.T) {
+	os.Create("testdir/testsrc/test.txt")
 	src := "testdir/testsrc/test.txt"
 	des := "testdir/testdes/testcreate.txt"
 	err := CopyFile(src, des)
@@ -24,7 +36,16 @@ func TestCopyFile(t *testing.T) {
 		t.Errorf("File didn't copy over to destination.\n")
 	}
 
-	os.Remove(des)
+	//os.Remove(des)
+	nestsrc := "testdir/testsrc/test/test.txt"
+	des = "testdir/testdes/test/test.txt"
+	os.Mkdir("testdir/testsrc/test", 0777)
+	os.Create(nestsrc)
+
+	err = CopyFile(nestsrc, des)
+	if err != nil {
+		t.Errorf("Error copying '%s' to '%s': %v\n", nestsrc, des, err)
+	}
 
 	des = "testdir/testdes/test.txt"
 	os.Create(des)
@@ -53,7 +74,6 @@ func TestCopyDir(t *testing.T) {
 	if ok := exists(des); !ok {
 		t.Errorf("Directory didn't copy over to destination.\n")
 	}
-
 	os.Remove(des)
 }
 

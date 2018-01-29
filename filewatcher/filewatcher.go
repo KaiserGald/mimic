@@ -17,18 +17,28 @@ import (
 	"github.com/radovskyb/watcher"
 )
 
-// WatchFiles will watch the files at the specified filepath and will fire off an
-// event when a change happens
-func WatchFiles(srcfp string, desfp string) error {
+// initWatcher will initialize the watcher with any configuration an return the watcher, it also gets and returns the relative filepath to the source directory
+func initWatcher(srcfp string) (*watcher.Watcher, string, error) {
 	w := watcher.New()
 	w.IgnoreHiddenFiles(true)
 
 	// get relative file path
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
-		return err
+		return nil, "", err
 	}
 	relfp := strings.Join([]string{dir, srcfp}, "/")
+
+	return w, relfp, nil
+}
+
+// WatchFiles will watch the files at the specified filepath and will fire off an
+// event when a change happens
+func WatchFiles(srcfp string, desfp string) error {
+	w, relfp, err := initWatcher(srcfp)
+	if err != nil {
+		return err
+	}
 
 	// listen for events
 	go func() {
@@ -40,35 +50,20 @@ func WatchFiles(srcfp string, desfp string) error {
 
 				switch event.Op.String() {
 				case "CREATE":
-					fmt.Println("create happened")
-					if event.IsDir() {
-						src, des := buildPaths(event.Path, srcfp, desfp, relfp)
-						err = filehandler.CopyDir(src, des)
-						if err != nil {
-							log.Printf("Error copying directory: %v\n", err)
-						}
-					} else {
-						src, des := buildPaths(event.Path, srcfp, desfp, relfp)
-						err = filehandler.CopyFile(src, des)
-						if err != nil {
-							log.Printf("Error copying file: %v\n", err)
-						}
+					err = handleCreate(event, srcfp, desfp, relfp)
+					if err != nil {
+						return
 					}
 
 				case "WRITE":
-					fmt.Println("write happened")
-					if !event.IsDir() {
-						src, des := buildPaths(event.Path, srcfp, desfp, relfp)
-						err = filehandler.CopyFile(src, des)
-						if err != nil {
-							log.Printf("Error copying file: %v\n", err)
-						}
+					err = handleWrite(event, srcfp, desfp, relfp)
+					if err != nil {
+						return
 					}
 				case "REMOVE":
-					_, des := buildPaths(event.Path, srcfp, desfp, relfp)
-					err = filehandler.Remove(des)
+					err = handleRemove(event, srcfp, desfp, relfp)
 					if err != nil {
-						fmt.Println("Error deleting file: %v\n", err)
+						return
 					}
 
 				case "RENAME":
@@ -139,14 +134,66 @@ func WatchFiles(srcfp string, desfp string) error {
 	return nil
 }
 
+// handleCreate handles the create events for both directories and files.
+func handleCreate(event watcher.Event, srcfp, desfp, relfp string) error {
+	if event.IsDir() {
+		src, des := buildPaths(event.Path, srcfp, desfp, relfp)
+		err := filehandler.CopyDir(src, des)
+		if err != nil {
+			log.Printf("Error copying directory: %v\n", err)
+			return err
+		}
+	} else {
+		src, des := buildPaths(event.Path, srcfp, desfp, relfp)
+		err := filehandler.CopyFile(src, des)
+		if err != nil {
+			log.Printf("Error copying file: %v\n", err)
+			return err
+		}
+	}
+	return nil
+}
+
+// handleWrite handles the write events for files.
+func handleWrite(event watcher.Event, srcfp, desfp, relfp string) error {
+	if !event.IsDir() {
+		src, des := buildPaths(event.Path, srcfp, desfp, relfp)
+		err := filehandler.CopyFile(src, des)
+		if err != nil {
+			log.Printf("Error copying file: %v\n", err)
+			return err
+		}
+	}
+	return nil
+}
+
+// handleRemove handles the remove events for files
+func handleRemove(event watcher.Event, srcfp, desfp, relfp string) error {
+	_, des := buildPaths(event.Path, srcfp, desfp, relfp)
+	err := filehandler.Remove(des)
+	if err != nil {
+		fmt.Println("Error deleting file: %v\n", err)
+		return err
+	}
+	return nil
+}
+
+func handleRename() error {
+	return nil
+}
+
+func handleChmod() error {
+	return nil
+}
+
+func handleMove() error {
+	return nil
+}
+
 // copyFile takes the file that triggered the event and copies it to the destination
 func buildPaths(ep string, srcfp string, desfp string, relfp string) (string, string) {
 	rel := strings.Replace(ep, relfp, "", -1)
 	des := strings.Join([]string{desfp, rel}, "")
 	src := strings.Join([]string{srcfp, rel}, "")
 	return src, des
-}
-
-func initDir() {
-
 }
