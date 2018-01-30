@@ -1,9 +1,9 @@
-# makefile for filewatcher
+# makefile for mimic
 # 19 January 2018
 # Code is licensed under the MIT License
 # © 2018 Scott Isenberg
 
-BINARY_NAME=fw
+BINARY_NAME=mimic
 BIN=bin/$(BINARY_NAME)
 OLD_INSTALL=$(GOBIN)/$(BINARY_NAME)
 DONE=@echo Done.

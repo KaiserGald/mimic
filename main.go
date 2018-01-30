@@ -23,8 +23,8 @@ var (
 )
 
 func processFlags() (string, string) {
-	flag.StringVar(&watch, "w", "", "watches the specified files and copies them to the specified location. Example: fw -w SOURCE:DESTINATION")
-	flag.StringVar(&watch, "watch", "", "watches the specified files and copies them to the specified location. Example: fw -w SOURCE:DESTINATION")
+	flag.StringVar(&watch, "w", "", "watches the specified files and copies them to the specified location. Example: mimic -w SOURCE:DESTINATION")
+	flag.StringVar(&watch, "watch", "", "watches the specified files and copies them to the specified location. Example: mimic -w SOURCE:DESTINATION")
 
 	flag.Parse()
 
