@@ -85,19 +85,14 @@ func CopyDir(srcdir string, desdir string) error {
 		} else {
 			despath = strings.Join([]string{despath, desdir}, "/")
 			if i < len(srcdirs) {
-				fmt.Println("Length is good.")
 				srcpath = strings.Join([]string{srcpath, srcdirs[i]}, "/")
 				info, err = os.Stat(srcpath)
 				if err != nil {
 					return err
 				}
-			} else {
-				fmt.Println("Length isn't good.")
 			}
 		}
 		if ok := pathExists(despath); !ok {
-			fmt.Println("Creating Path:", despath)
-			fmt.Println("Path mode:", info.Mode())
 			if err := os.Mkdir(despath, info.Mode()); err != nil {
 				return err
 			}
