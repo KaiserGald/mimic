@@ -14,7 +14,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/KaiserGald/filewatcher/filehandler"
+	"github.com/KaiserGald/mimic/filehandler"
 	"github.com/radovskyb/watcher"
 )
 

@@ -15,7 +15,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/KaiserGald/filewatcher/filewatcher"
+	"github.com/KaiserGald/mimic/filewatcher"
 )
 
 var (

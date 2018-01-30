@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/KaiserGald/filewatcher/filehandler"
+	"github.com/KaiserGald/mimic/filehandler"
 	"github.com/radovskyb/watcher"
 )
 
