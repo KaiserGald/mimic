@@ -61,7 +61,6 @@ func TestCopyFile(t *testing.T) {
 		t.Errorf("Error copying: '%s' and '%s' are not identical.\n", src, des)
 	}
 
-	t.Fail()
 	os.Remove(des)
 }
 

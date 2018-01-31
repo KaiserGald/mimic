@@ -13,6 +13,7 @@ WHITE='\033[1;37m'
 PURPLE='\e[95m'
 CYAN='\e[36m'
 YELLOW='\033[1;33m'
+ORANGE='\033[38;5;208m'
 NC='\033[0m'
 
 all : deps test build install clean
@@ -43,7 +44,7 @@ install:
 
 test:
 	@echo -e $(WHITE)Running Tests...
-	@go test ./... | sed ''/'\(--- PASS\)'/s//$$(printf $(GREEN)---\\x20PASS$(WHITE))/'' | sed ''/PASS/s//$$(printf $(GREEN)PASS$(WHITE))/'' | sed  ''/'\(=== RUN\)'/s//$$(printf $(YELLOW)===\\x20RUN$(WHITE))/'' | sed ''/ok/s//$$(printf $(GREEN)ok$(WHITE))/'' | sed  ''/'\(--- FAIL\)'/s//$$(printf $(RED)---\\x20FAIL$(WHITE))/'' | sed  ''/FAIL/s//$$(printf $(RED)FAIL$(WHITE))/'' | sed ''/RUN/s//$$(printf $(YELLOW)RUN$(WHITE))/''
+	@go test ./... | sed ''/'\(--- PASS\)'/s//$$(printf $(GREEN)---\\x20PASS)/'' | sed ''/PASS/s//$$(printf $(GREEN)PASS)/'' | sed  ''/'\(=== RUN\)'/s//$$(printf $(YELLOW)===\\x20RUN)/'' | sed ''/ok/s//$$(printf $(GREEN)ok)/'' | sed  ''/'\(--- FAIL\)'/s//$$(printf $(RED)---\\x20FAIL)/'' | sed  ''/FAIL/s//$$(printf $(RED)FAIL)/'' | sed ''/RUN/s//$$(printf $(YELLOW)RUN)/'' | sed ''/?/s//$$(printf $(ORANGE)?)/'' | sed ''/'\(^\)'/s//$$(printf $(WHITE))/''
 	$(DONE)
 
 run: all
