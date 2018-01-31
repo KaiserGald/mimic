@@ -6,27 +6,34 @@
 BINARY_NAME=mimic
 BIN=bin/$(BINARY_NAME)
 OLD_INSTALL=$(GOBIN)/$(BINARY_NAME)
-DONE=@echo Done.
+DONE=@echo -e $(GREEN)Done.$(NC)
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+WHITE='\033[1;37m'
+PURPLE='\e[95m'
+CYAN='\e[36m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
 all : deps test build install clean
 
 build:
-	@echo Building $(BINARY_NAME)...
+	@echo -e $(WHITE)Building $(PURPLE)$(BINARY_NAME)$(WHITE)...
 	@go build -o $(BIN) -v
 	$(DONE)
 
 clean:
-	@echo Cleaning up...
+	@echo -e $(WHITE)Cleaning up...
 	@go clean
 	$(DONE)
 
 deps:
-	@echo Grabbing dependencies...
+	@echo -e $(WHITE)Grabbing dependencies...
 	@go get github.com/radovskyb/watcher
 	$(DONE)
 
 install:
-	@echo Installing $(BINARY_NAME) into $(GOBIN)...
+	@echo -e $(WHITE)Installing $(PURPLE)$(BINARY_NAME)$(WHITE) into $(CYAN)$(GOBIN)$(WHITE)...
 	@echo Removing old install...
 	@rm -f $(OLD_INSTALL)
 	@echo Copying files...
@@ -35,8 +42,8 @@ install:
 	$(DONE)
 
 test:
-	@echo Running Tests...
-	@go test -cover ./...
+	@echo -e $(WHITE)Running Tests...
+	@go test ./... | sed ''/'\(--- PASS\)'/s//$$(printf $(GREEN)---\\x20PASS$(WHITE))/'' | sed ''/PASS/s//$$(printf $(GREEN)PASS$(WHITE))/'' | sed  ''/'\(=== RUN\)'/s//$$(printf $(YELLOW)===\\x20RUN$(WHITE))/'' | sed ''/ok/s//$$(printf $(GREEN)ok$(WHITE))/'' | sed  ''/'\(--- FAIL\)'/s//$$(printf $(RED)---\\x20FAIL$(WHITE))/'' | sed  ''/FAIL/s//$$(printf $(RED)FAIL$(WHITE))/'' | sed ''/RUN/s//$$(printf $(YELLOW)RUN$(WHITE))/''
 	$(DONE)
 
 run: all

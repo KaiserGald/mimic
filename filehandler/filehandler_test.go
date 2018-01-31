@@ -60,6 +60,8 @@ func TestCopyFile(t *testing.T) {
 	if bytes.Compare(f1, f2) != 0 {
 		t.Errorf("Error copying: '%s' and '%s' are not identical.\n", src, des)
 	}
+
+	t.Fail()
 	os.Remove(des)
 }
 
