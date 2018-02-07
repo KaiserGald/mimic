@@ -15,26 +15,27 @@ CYAN='\e[36m'
 YELLOW='\033[1;33m'
 ORANGE='\033[38;5;208m'
 NC='\033[0m'
+SED_COLORED=sed ''/'\(--- PASS\)'/s//$$(printf $(GREEN)---\\x20PASS)/'' | sed ''/PASS/s//$$(printf $(GREEN)PASS)/'' | sed  ''/'\(=== RUN\)'/s//$$(printf $(YELLOW)===\\x20RUN)/'' | sed ''/ok/s//$$(printf $(GREEN)ok)/'' | sed  ''/'\(--- FAIL\)'/s//$$(printf $(RED)---\\x20FAIL)/'' | sed  ''/FAIL/s//$$(printf $(RED)FAIL)/'' | sed ''/RUN/s//$$(printf $(YELLOW)RUN)/'' | sed ''/?/s//$$(printf $(ORANGE)?)/'' | sed ''/'\(^\)'/s//$$(printf $(NC))/''
 
 all : deps test build install clean
 
 build:
-	@echo -e $(WHITE)Building $(PURPLE)$(BINARY_NAME)$(WHITE)...
+	@echo -e Building $(PURPLE)$(BINARY_NAME)$(NC)...
 	@go build -o $(BIN) -v
 	$(DONE)
 
 clean:
-	@echo -e $(WHITE)Cleaning up...
+	@echo -e Cleaning up...
 	@go clean
 	$(DONE)
 
 deps:
-	@echo -e $(WHITE)Grabbing dependencies...
+	@echo -e Grabbing dependencies...
 	@go get github.com/radovskyb/watcher
 	$(DONE)
 
 install:
-	@echo -e $(WHITE)Installing $(PURPLE)$(BINARY_NAME)$(WHITE) into $(CYAN)$(GOBIN)$(WHITE)...
+	@echo -e Installing $(PURPLE)$(BINARY_NAME)$(NC) into $(CYAN)$(GOBIN)$(NC)...
 	@echo Removing old install...
 	@rm -f $(OLD_INSTALL)
 	@echo Copying files...
@@ -43,8 +44,10 @@ install:
 	$(DONE)
 
 test:
-	@echo -e $(WHITE)Running Tests...
-	@go test ./... | sed ''/'\(--- PASS\)'/s//$$(printf $(GREEN)---\\x20PASS)/'' | sed ''/PASS/s//$$(printf $(GREEN)PASS)/'' | sed  ''/'\(=== RUN\)'/s//$$(printf $(YELLOW)===\\x20RUN)/'' | sed ''/ok/s//$$(printf $(GREEN)ok)/'' | sed  ''/'\(--- FAIL\)'/s//$$(printf $(RED)---\\x20FAIL)/'' | sed  ''/FAIL/s//$$(printf $(RED)FAIL)/'' | sed ''/RUN/s//$$(printf $(YELLOW)RUN)/'' | sed ''/?/s//$$(printf $(ORANGE)?)/'' | sed ''/'\(^\)'/s//$$(printf $(WHITE))/''
+	@echo -e Running Tests...
+	@go test -v -args -w "testsrc:testdes" | ${SED_COLORED}
+	@go test ./filewatcher/ | ${SED_COLORED}
+	@go test ./filehandler/ | ${SED_COLORED}
 	$(DONE)
 
 run: all
