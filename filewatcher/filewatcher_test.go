@@ -7,7 +7,6 @@ package filewatcher
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -78,7 +77,6 @@ func TestInitializeFileTree(t *testing.T) {
 	}
 
 	expected, _ := mapTree("testsrc")
-	fmt.Println("Expected:", expected["subtest/test.txt"].Name())
 
 	actual, _ := mapTree("testdes")
 
@@ -313,10 +311,6 @@ func TestHandleMove(t *testing.T) {
 	desf := srcfp + desdir + filename
 	copysrcf := desfp + filename
 	copydesf := desfp + desdir + filename
-	fmt.Println(srcf)
-	fmt.Println(desf)
-	fmt.Println(copysrcf)
-	fmt.Println(copydesf)
 
 	os.Create(srcf)
 	os.Create(desf)
