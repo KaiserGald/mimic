@@ -10,12 +10,15 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"github.com/KaiserGald/logger"
 )
 
 func TestMain(m *testing.M) {
 	os.MkdirAll("testdir/testsrc", 0777)
 	os.Mkdir("testdir/testdes", 0777)
-
+	lg := logger.New()
+	Init(lg)
 	test := m.Run()
 
 	os.RemoveAll("testdir")
@@ -24,6 +27,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestCopyFile(t *testing.T) {
+	l = logger.New()
 	os.Create("testdir/testsrc/test.txt")
 	src := "testdir/testsrc/test.txt"
 	des := "testdir/testdes/testcreate.txt"

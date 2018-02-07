@@ -14,6 +14,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/KaiserGald/logger"
 	"github.com/KaiserGald/mimic/filehandler"
 	"github.com/radovskyb/watcher"
 )
@@ -49,8 +50,8 @@ func TestInitWatcher(t *testing.T) {
 	}
 
 	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-	relfp := strings.Join([]string{dir, "testdir/testsrc"}, "/")
-	if fp != relfp {
+	rlfp := strings.Join([]string{dir, "testdir/testsrc"}, "/")
+	if fp != rlfp {
 		t.Errorf("Filepaths do not match.")
 	}
 
@@ -60,6 +61,7 @@ func TestInitWatcher(t *testing.T) {
 }
 
 func TestInitializeFileTree(t *testing.T) {
+	l = logger.New()
 	os.MkdirAll("testsrc/subtest/subtest1", 0777)
 	os.MkdirAll("testsrc/subtest/subtest2", 0777)
 	os.Create("testsrc/test.txt")
@@ -69,7 +71,7 @@ func TestInitializeFileTree(t *testing.T) {
 	os.Create("testsrc/subtest/subtest1/test1.txt")
 	os.Create("testsrc/subtest/subtest2/test.txt")
 	os.Create("testsrc/subtest/subtest2/test1.txt")
-
+	filehandler.Init(l)
 	err := initializeFileTree(srcfp, desfp, relfp)
 	if err != nil {
 		t.Errorf("Error initializing file tree: %v", err)
@@ -303,6 +305,8 @@ func TestHandleChmod(t *testing.T) {
 }
 
 func TestHandleMove(t *testing.T) {
+	l = logger.New()
+
 	filename := "/test.txt"
 	desdir := "/test"
 	srcf := srcfp + filename
