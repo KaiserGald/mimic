@@ -193,6 +193,9 @@ func splitPath(path string, dirs bool) []string {
 		l.Debug.Log("Is a directory, so dropping off file name.")
 		sp = sp[:len(sp)-1]
 	}
+	if sp[0] == "" {
+		sp = sp[1:]
+	}
 	l.Debug.Log("Done.")
 
 	return sp
