@@ -141,27 +141,39 @@ func initializeFileTree(srcfp, desfp, relfp string) error {
 	if err != nil {
 		return err
 	}
+	l.Debug.Log("Tree: %v", tree)
 	l.Debug.Log("Done.")
-
 	l.Debug.Log("Starting to copy source tree to destination tree...")
+
 	for file := range tree {
+
+		l.Debug.Log("file: %v", file)
+
+		l.Debug.Log("Building file paths...")
+		src, des := buildPaths("/"+file, srcfp, desfp, relfp)
+		l.Debug.Log("Done.")
+
 		l.Debug.Log("Is file a directory?")
 		if !tree[file].IsDir() {
 			l.Debug.Log("No!")
-			l.Debug.Log("Building file paths...")
-			src, des := buildPaths("/"+file, srcfp, desfp, relfp)
-			l.Debug.Log("Done.")
 			l.Info.Log("Copying '%v' into '%v'", src, des)
 			err := filehandler.CopyFile(src, des)
 			if err != nil {
-				l.Error.Log("Error initializing the file tree: %v", err)
+				l.Error.Log("Error copying a file: %v", err)
 				return err
 			}
-			l.Debug.Log("Copy complete!")
 		} else {
-			l.Debug.Log("Yes...")
+			l.Debug.Log("Yes!")
+			l.Info.Log("Copying '%v' into '%v'", src, des)
+			err := filehandler.CopyDir(src, des)
+			if err != nil {
+				l.Error.Log("Error copying a directory: %v", err)
+				return err
+			}
 		}
+		l.Debug.Log("Copy complete!")
 	}
+
 	l.Debug.Log("Done copying source tree to destination tree.")
 	return nil
 }
@@ -333,7 +345,6 @@ func mapTree(name string) (map[string]os.FileInfo, error) {
 		if len(path) != 0 {
 			tree[path] = info
 		}
-		l.Debug.Log("tree: %v", tree)
 		return nil
 	})
 }

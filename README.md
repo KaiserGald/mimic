@@ -1,6 +1,6 @@
 # Mimic
 
-##### current version: 0.2.2
+##### current version: 0.2.3
 
 Mimic is a simple file cloner. Any changes made to the source directory will be reflected in the destination directory. It has
 handling for all system events and will make changes accordingly.

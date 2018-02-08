@@ -63,14 +63,14 @@ func CopyFile(srcfp, desfp string) error {
 			return err
 		}
 		l.Debug.Log("File '%v' successfully opened!", desfp)
-		l.Debug.Log("Copying file '%v' to '%v'.", srcfp, desfp)
-		_, err = io.Copy(to, from)
-		if err != nil {
-			return err
-		}
-		l.Debug.Log("File successfully copied.")
-		defer to.Close()
 	}
+	l.Debug.Log("Copying file '%v' to '%v'.", srcfp, desfp)
+	_, err = io.Copy(to, from)
+	if err != nil {
+		return err
+	}
+	l.Debug.Log("File successfully copied.")
+	defer to.Close()
 	l.Debug.Log("File copy done.")
 
 	return nil
@@ -97,24 +97,35 @@ func CopyDir(srcdir, desdir string) error {
 	l.Debug.Log("Begin copying directories...")
 	l.Debug.Log("Building paths...")
 	var desdirs []string
+	var srcdirs []string
+	var srcroot bool
+	var desroot bool
 	if info.IsDir() {
-		desdirs = splitPath(desdir, false)
+		desdirs, desroot = splitPath(desdir, false)
 	} else {
-		desdirs = splitPath(desdir, true)
+		desdirs, desroot = splitPath(desdir, true)
 	}
-	srcdirs := splitPath(srcdir, true)
+	srcdirs, srcroot = splitPath(srcdir, true)
 	l.Debug.Log("srcdirs: %v", srcdirs)
 	l.Debug.Log("desdirs: %v", desdirs)
 	l.Debug.Log("Joining paths into a file path...")
 	var srcpath, despath string
 	for i, desdir := range desdirs {
 		if i == 0 {
+			if desroot {
+				desdir = "/" + desdir
+			}
+			if srcroot {
+				srcdirs[i] = "/" + srcdirs[i]
+			}
 			despath = strings.Join([]string{despath, desdir}, "")
 			srcpath = strings.Join([]string{srcpath, srcdirs[i]}, "")
+			despath += "/"
+			srcpath += "/"
 		} else {
-			despath = strings.Join([]string{despath, desdir}, "/")
+			despath += desdir + "/"
 			if i < len(srcdirs) {
-				srcpath = strings.Join([]string{srcpath, srcdirs[i]}, "/")
+				srcpath += srcdirs[i] + "/"
 				info, err = os.Stat(srcpath)
 				if err != nil {
 					return err
@@ -186,8 +197,9 @@ func pathExists(fp string) bool {
 }
 
 // splitPath splits the path string into the individual files and returns them in an array
-func splitPath(path string, dirs bool) []string {
+func splitPath(path string, dirs bool) ([]string, bool) {
 	l.Debug.Log("Splitting path '%v'.", path)
+	root := false
 	sp := strings.Split(path, "/")
 	if dirs {
 		l.Debug.Log("Is a directory, so dropping off file name.")
@@ -195,8 +207,9 @@ func splitPath(path string, dirs bool) []string {
 	}
 	if sp[0] == "" {
 		sp = sp[1:]
+		root = true
 	}
 	l.Debug.Log("Done.")
 
-	return sp
+	return sp, root
 }

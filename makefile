@@ -47,7 +47,7 @@ install:
 
 test:
 	@echo -e Running Tests...
-	@go test -v -args -w "testsrc:testdes" | ${SED_COLORED}
+	@go test -args -w "testsrc:testdes" | ${SED_COLORED}
 	@go test ./filewatcher/ | ${SED_COLORED}
 	@go test ./filehandler/ | ${SED_COLORED}
 	$(DONE)
