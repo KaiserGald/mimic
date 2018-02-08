@@ -57,7 +57,6 @@ run: all
 
 stop:
 	@echo -e Checking if $(PURPLE)$(BINARY_NAME)$(NC) is running...
-	${ISSERVICERUNNING}
 ifneq (${ISSERVICERUNNING},)
 	@echo -e $(PURPLE)$(BINARY_NAME)$(NC) is running. Stopping it now.
 	@sudo kill $(PSID)
