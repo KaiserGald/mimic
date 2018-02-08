@@ -5,6 +5,7 @@
 
 BINARY_NAME=mimic
 BIN=bin/$(BINARY_NAME)
+PSID:=$(shell pgrep $(BINARY_NAME))
 OLD_INSTALL=$(GOBIN)/$(BINARY_NAME)
 DONE=@echo -e $(GREEN)Done.$(NC)
 RED='\033[0;31m'
@@ -16,8 +17,9 @@ YELLOW='\033[1;33m'
 ORANGE='\033[38;5;208m'
 NC='\033[0m'
 SED_COLORED=sed ''/'\(--- PASS\)'/s//$$(printf $(GREEN)---\\x20PASS)/'' | sed ''/PASS/s//$$(printf $(GREEN)PASS)/'' | sed  ''/'\(=== RUN\)'/s//$$(printf $(YELLOW)===\\x20RUN)/'' | sed ''/ok/s//$$(printf $(GREEN)ok)/'' | sed  ''/'\(--- FAIL\)'/s//$$(printf $(RED)---\\x20FAIL)/'' | sed  ''/FAIL/s//$$(printf $(RED)FAIL)/'' | sed ''/RUN/s//$$(printf $(YELLOW)RUN)/'' | sed ''/?/s//$$(printf $(ORANGE)?)/'' | sed ''/'\(^\)'/s//$$(printf $(NC))/''
+ISSERVICERUNNING=$(shell pgrep $(BINARY_NAME))
 
-all : deps test build install clean
+all : stop deps test build install clean
 
 build:
 	@echo -e Building $(PURPLE)$(BINARY_NAME)$(NC)...
@@ -52,5 +54,17 @@ test:
 
 run: all
 	$(BINARY_NAME)
+
+stop:
+	@echo -e Checking if $(PURPLE)$(BINARY_NAME)$(NC) is running...
+	${ISSERVICERUNNING}
+ifneq (${ISSERVICERUNNING},)
+	@echo -e $(PURPLE)$(BINARY_NAME)$(NC) is running. Stopping it now.
+	@sudo kill $(PSID)
+	$(DONE)
+else
+	@echo -e $(PURPLE)$(BINARY_NAME)$(NC) isn\'t currently running.
+endif
+
 
 .PHONY: all clean install
