@@ -40,7 +40,7 @@ install:
 	@echo -e Installing $(PURPLE)$(BINARY_NAME)$(NC) into $(CYAN)$(GOBIN)$(NC)...
 	@echo Removing old install...
 	@rm -f $(OLD_INSTALL)
-	@echo Copying files... $(GOBING)
+	@echo Copying files... $(GOBIN)
 	@cp -u $(BIN) $(GOBIN)
 	@cp -u $(BIN) /usr/local/bin
 	$(DONE)
