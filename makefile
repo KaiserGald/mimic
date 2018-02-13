@@ -40,9 +40,9 @@ install:
 	@echo -e Installing $(PURPLE)$(BINARY_NAME)$(NC) into $(CYAN)$(GOBIN)$(NC)...
 	@echo Removing old install...
 	@rm -f $(OLD_INSTALL)
-	@echo Copying files...
+	@echo Copying files... $(GOBING)
 	@cp -u $(BIN) $(GOBIN)
-	@sudo cp -u $(BIN) /usr/local/bin
+	@cp -u $(BIN) /usr/local/bin
 	$(DONE)
 
 test:
@@ -59,7 +59,7 @@ stop:
 	@echo -e Checking if $(PURPLE)$(BINARY_NAME)$(NC) is running...
 ifneq (${ISSERVICERUNNING},)
 	@echo -e $(PURPLE)$(BINARY_NAME)$(NC) is running. Stopping it now.
-	@sudo kill $(PSID)
+	@kill $(PSID)
 	$(DONE)
 else
 	@echo -e $(PURPLE)$(BINARY_NAME)$(NC) isn\'t currently running.
